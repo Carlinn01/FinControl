@@ -20,18 +20,15 @@ Siga o **[GUIA-DESENVOLVIMENTO.md](./GUIA-DESENVOLVIMENTO.md)** etapa por etapa 
 
 ## Estrutura do projeto
 
-- **backend/** — API Node.js + Express + SQLite
+- **backend/** — API Node.js + Express + MySQL
 - **web/** — Interface HTML, CSS e JavaScript
 - **mobile/** — (futuro) App Android em Kotlin
 
 ## Rodar o projeto (após Fase 0 e 1)
 
-```bash
-# Backend
-cd backend && npm install && npm start
-
-# Web: abrir web/index.html no navegador ou usar um servidor estático
-```
+1. **MySQL** — Instale o MySQL e crie o arquivo `backend/.env` (host, user, password, database).
+2. **Backend:** `cd backend` → `npm install` → `npm start`
+3. **Web:** abrir `web/index.html` no navegador ou usar um servidor estático.
 
 ---
 

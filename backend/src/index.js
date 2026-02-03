@@ -1,10 +1,12 @@
 /**
  * FinControl - Servidor da API
- * Fase 0/1: ponto de entrada. Complete conforme o GUIA-DESENVOLVIMENTO.md
+ * Banco: MySQL (configure .env)
  */
 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const { initDb } = require('./db/init.js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,11 +14,26 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Rota de saúde (Fase 1)
+// Raiz: evita "Cannot GET /"
+app.get('/', (req, res) => {
+  res.json({ message: 'FinControl API', health: '/api/health' });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, message: 'FinControl API' });
 });
 
-app.listen(PORT, () => {
-  console.log(`FinControl API rodando em http://localhost:${PORT}`);
-});
+async function start() {
+  try {
+    await initDb();
+  } catch (err) {
+    console.error('[FinControl] Erro ao conectar no MySQL:', err.message);
+    console.error('Verifique o arquivo .env e se o MySQL está rodando. Veja MYSQL-SETUP.md');
+    process.exit(1);
+  }
+  app.listen(PORT, () => {
+    console.log(`FinControl API rodando em http://localhost:${PORT}`);
+  });
+}
+
+start();
