@@ -7,6 +7,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { initDb } = require('./db/init.js');
+const routes = require('./routes/index.js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,14 +15,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Raiz: evita "Cannot GET /"
 app.get('/', (req, res) => {
   res.json({ message: 'FinControl API', health: '/api/health' });
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ ok: true, message: 'FinControl API' });
-});
+app.use('/api', routes);
 
 async function start() {
   try {

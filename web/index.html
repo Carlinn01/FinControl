@@ -10,10 +10,173 @@
   <header class="header">
     <h1>FinControl</h1>
     <p class="tagline">Vendas e Gastos sob controle</p>
+    <nav class="nav">
+      <a href="#" class="nav__link nav__link--active" data-view="inicio">Início</a>
+      <a href="#" class="nav__link" data-view="produtos">Produtos</a>
+      <a href="#" class="nav__link" data-view="vendas">Vendas</a>
+      <a href="#" class="nav__link" data-view="despesas">Despesas</a>
+      <a href="#" class="nav__link" data-view="metas">Metas</a>
+      <a href="#" class="nav__link" data-view="dashboard">Dashboard</a>
+    </nav>
   </header>
+
   <main class="main">
-    <p>Interface em construção. Siga o <strong>GUIA-DESENVOLVIMENTO.md</strong> a partir da Fase 4.</p>
+    <!-- Início -->
+    <section id="view-inicio" class="view view--active">
+      <div class="card card--saldo">
+        <h2>Saldo atual</h2>
+        <p class="saldo-valor" id="saldo-atual">—</p>
+        <button type="button" class="btn btn--sec" id="btn-definir-saldo">Definir saldo inicial</button>
+      </div>
+      <div class="card card--form" id="card-saldo-inicial" hidden>
+        <h3>Definir saldo inicial</h3>
+        <form id="form-saldo-inicial">
+          <label>Valor (R$)</label>
+          <input type="number" name="valor" step="0.01" min="0" required placeholder="0,00">
+          <div class="form-actions">
+            <button type="submit" class="btn">Salvar</button>
+            <button type="button" class="btn btn--sec" id="btn-cancelar-saldo">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Produtos -->
+    <section id="view-produtos" class="view">
+      <div class="card">
+        <h2>Novo produto</h2>
+        <form id="form-produto">
+          <label>Nome</label>
+          <input type="text" name="nome" required placeholder="Ex: Camiseta">
+          <label>Custo (R$)</label>
+          <input type="number" name="custo" step="0.01" min="0" required placeholder="0,00">
+          <label>Valor sugerido (R$) <small>opcional</small></label>
+          <input type="number" name="valor_sugerido" step="0.01" min="0" placeholder="Deixe em branco para calcular">
+          <button type="submit" class="btn">Cadastrar</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Produtos cadastrados</h2>
+        <div id="lista-produtos" class="lista">Carregando…</div>
+      </div>
+    </section>
+
+    <!-- Vendas -->
+    <section id="view-vendas" class="view">
+      <div class="card">
+        <h2>Registrar venda</h2>
+        <form id="form-venda">
+          <label>Produto</label>
+          <select name="produto_id" required id="select-produtos">
+            <option value="">Carregando…</option>
+          </select>
+          <label>Valor da venda (R$)</label>
+          <input type="number" name="valor_bruto" step="0.01" min="0" required placeholder="0,00">
+          <button type="submit" class="btn">Registrar venda</button>
+        </form>
+        <div id="ultima-venda" class="feedback feedback--lucro" hidden></div>
+      </div>
+      <div class="card">
+        <h2>Últimas vendas</h2>
+        <div id="lista-vendas" class="lista">Carregando…</div>
+      </div>
+    </section>
+
+    <!-- Despesas -->
+    <section id="view-despesas" class="view">
+      <div class="card">
+        <h2>Nova despesa</h2>
+        <form id="form-despesa">
+          <label>Nome</label>
+          <input type="text" name="nome" required placeholder="Ex: Transporte">
+          <label>Motivo <small>opcional</small></label>
+          <input type="text" name="motivo" placeholder="Ex: Entrega">
+          <label>Valor (R$)</label>
+          <input type="number" name="valor" step="0.01" min="0" required placeholder="0,00">
+          <label>Data</label>
+          <input type="date" name="data" id="input-data-despesa" required>
+          <button type="submit" class="btn btn--despesa">Cadastrar despesa</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Despesas</h2>
+        <div id="lista-despesas" class="lista">Carregando…</div>
+      </div>
+    </section>
+
+    <!-- Metas -->
+    <section id="view-metas" class="view">
+      <div class="card">
+        <h2>Nova meta</h2>
+        <form id="form-meta">
+          <label>Descrição</label>
+          <input type="text" name="descricao" required placeholder="Ex: Faturamento do mês">
+          <label>Valor alvo (R$)</label>
+          <input type="number" name="valor_alvo" step="0.01" min="0" required placeholder="0,00">
+          <label>Período</label>
+          <select name="periodo">
+            <option value="mensal">Mensal</option>
+            <option value="anual">Anual</option>
+          </select>
+          <button type="submit" class="btn">Criar meta</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Metas</h2>
+        <div id="lista-metas" class="lista">Carregando…</div>
+      </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="view-dashboard" class="view">
+      <div class="card card--filtro">
+        <label>Período</label>
+        <select id="dashboard-periodo">
+          <option value="semanal">Semanal</option>
+          <option value="mensal" selected>Mensal</option>
+          <option value="anual">Anual</option>
+          <option value="total">Total</option>
+        </select>
+      </div>
+      <div class="dashboard-cards">
+        <div class="card card--numero">
+          <span class="card__label">Saldo</span>
+          <span class="card__valor" id="dash-saldo">—</span>
+        </div>
+        <div class="card card--numero card--lucro">
+          <span class="card__label">Lucro</span>
+          <span class="card__valor" id="dash-lucro">—</span>
+        </div>
+        <div class="card card--numero card--despesa">
+          <span class="card__label">Despesas</span>
+          <span class="card__valor" id="dash-despesas">—</span>
+        </div>
+        <div class="card card--numero card--taxa">
+          <span class="card__label">Taxas</span>
+          <span class="card__valor" id="dash-taxas">—</span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Resumo do período</h2>
+        <p id="dashboard-resumo" class="text-muted">Selecione o período acima.</p>
+      </div>
+      <div class="card card--chart">
+        <h2>Vendas no período</h2>
+        <div class="chart-wrap">
+          <canvas id="chart-vendas" aria-label="Gráfico de vendas por data"></canvas>
+        </div>
+      </div>
+      <div class="card card--chart">
+        <h2>Despesas no período</h2>
+        <div class="chart-wrap">
+          <canvas id="chart-despesas" aria-label="Gráfico de despesas por data"></canvas>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
