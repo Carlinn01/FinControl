@@ -1,0 +1,50 @@
+/**
+ * FinControl - Estilos globais
+ * Paleta: #0A2540 (azul), #0F0F0F (preto), #2A2A2A (cinza escuro),
+ * #8B8B8B (cinza médio), #1DB954 (lucro), #E63946 (despesa), #F4C430 (alerta/meta)
+ */
+
+:root {
+  --azul: #0A2540;
+  --preto: #0F0F0F;
+  --cinza-escuro: #2A2A2A;
+  --cinza-medio: #8B8B8B;
+  --lucro: #1DB954;
+  --despesa: #E63946;
+  --alerta: #F4C430;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--preto);
+  color: #eee;
+  min-height: 100vh;
+}
+
+.header {
+  background: var(--azul);
+  padding: 1rem 1.5rem;
+  color: #fff;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.tagline {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.main {
+  padding: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
