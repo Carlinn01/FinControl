@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FinControl</string>
+    <string name="saldo">Saldo</string>
+    <string name="saldo_atual">Saldo atual</string>
+    <string name="definir_saldo_inicial">Definir saldo inicial</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="vendas">Vendas</string>
+    <string name="despesas">Despesas</string>
+    <string name="ultimas_vendas">Últimas vendas</string>
+    <string name="lucro">Lucro</string>
+    <string name="total_despesas">Despesas</string>
+    <string name="taxas">Taxas</string>
+    <string name="atualizar">Atualizar</string>
+    <string name="erro_carregar">Erro ao carregar. Verifique a API.</string>
+</resources>

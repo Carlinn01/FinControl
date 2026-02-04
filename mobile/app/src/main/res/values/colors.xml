@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="azul">#0052AA</color>
+    <color name="azul_claro">#007BFF</color>
+    <color name="preto">#0F0F0F</color>
+    <color name="cinza_escuro">#2A2A2A</color>
+    <color name="cinza_medio">#8B8B8B</color>
+    <color name="lucro">#1DB954</color>
+    <color name="despesa">#E63946</color>
+    <color name="alerta">#F4C430</color>
+    <color name="branco">#FFFFFF</color>
+</resources>
