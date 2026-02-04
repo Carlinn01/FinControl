@@ -21,6 +21,17 @@ app.get('/', (req, res) => {
 
 app.use('/api', routes);
 
+// 404 para rotas não encontradas
+app.use((req, res) => {
+  res.status(404).json({ error: 'Rota não encontrada', path: req.path });
+});
+
+// Tratamento de erros (ex.: JSON inválido)
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Erro interno do servidor' });
+});
+
 async function start() {
   try {
     await initDb();

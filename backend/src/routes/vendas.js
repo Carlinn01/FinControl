@@ -44,7 +44,10 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'valor_bruto inválido (número >= 0)' });
     }
     const taxa = taxa_percentual != null ? parseFloat(taxa_percentual) : 12.99;
-    const taxaPct = isNaN(taxa) ? 12.99 : taxa;
+    let taxaPct = isNaN(taxa) ? 12.99 : taxa;
+    if (taxaPct < 0 || taxaPct > 100) {
+      return res.status(400).json({ error: 'taxa_percentual deve estar entre 0 e 100' });
+    }
 
     const [prodRows] = await pool.query('SELECT id, custo FROM produtos WHERE id = ?', [produtoId]);
     if (prodRows.length === 0) {

@@ -5,22 +5,43 @@
 const API_BASE = 'http://localhost:3000/api';
 
 async function apiGet(path) {
-  const res = await fetch(`${API_BASE}${path}`);
-  if (!res.ok) throw new Error(`Erro ${res.status}`);
-  return res.json();
+  try {
+    const res = await fetch(`${API_BASE}${path}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `Erro ${res.status}`);
+    return data;
+  } catch (err) {
+    if (err.message.startsWith('Erro ')) throw err;
+    throw new Error('Verifique a conexão e se a API está rodando em ' + API_BASE);
+  }
 }
 
 async function apiPost(path, body) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Erro ${res.status}`);
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `Erro ${res.status}`);
+    return data;
+  } catch (err) {
+    if (err.message.startsWith('Erro ') || err.message.includes('Verifique')) throw err;
+    throw new Error('Verifique a conexão e se a API está rodando em ' + API_BASE);
   }
-  return res.json();
+}
+
+async function apiDelete(path) {
+  try {
+    const res = await fetch(`${API_BASE}${path}`, { method: 'DELETE' });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `Erro ${res.status}`);
+    return data;
+  } catch (err) {
+    if (err.message.startsWith('Erro ') || err.message.includes('Verifique')) throw err;
+    throw new Error('Verifique a conexão e se a API está rodando em ' + API_BASE);
+  }
 }
 
 function formatarMoeda(valor) {
@@ -44,7 +65,7 @@ function showView(nome) {
   if (link) link.classList.add('nav__link--active');
 
   if (nome === 'inicio') loadInicio();
-  else if (nome === 'produtos') loadProdutos();
+  else if (nome === 'produtos') { loadProdutos(); atualizarPreviewSugestao(); }
   else if (nome === 'vendas') loadVendas();
   else if (nome === 'metas') loadMetas();
   else if (nome === 'despesas') loadDespesas();
@@ -83,6 +104,10 @@ document.getElementById('btn-cancelar-saldo').addEventListener('click', () => {
 document.getElementById('form-saldo-inicial').addEventListener('submit', async (e) => {
   e.preventDefault();
   const valor = parseFloat(e.target.valor.value);
+  if (isNaN(valor) || valor < 0) {
+    toast('Informe um valor maior ou igual a zero.', 'erro');
+    return;
+  }
   try {
     await apiPost('/saldo/inicial', { valor });
     toast('Saldo inicial definido!', 'ok');
@@ -105,28 +130,98 @@ async function loadProdutos() {
       return;
     }
     el.innerHTML = lista.map(p =>
-      `<div class="lista-item">
+      `<div class="lista-item" data-id="${p.id}">
         <span><strong>${escapeHtml(p.nome)}</strong> — Custo ${formatarMoeda(p.custo)} · Sugerido ${formatarMoeda(p.valor_sugerido || 0)}</span>
+        <button type="button" class="btn btn--sm btn--excluir" data-id="${p.id}" title="Excluir produto">Excluir</button>
       </div>`
     ).join('');
+    el.querySelectorAll('.btn--excluir').forEach(btn => {
+      btn.addEventListener('click', () => excluirProduto(parseInt(btn.getAttribute('data-id'), 10)));
+    });
   } catch (err) {
     el.textContent = 'Erro ao carregar.';
     toast(err.message || 'Erro ao carregar produtos', 'erro');
   }
 }
 
+function calcularSugestaoProduto(custo, taxaPct, margemPct) {
+  if (custo == null || isNaN(custo) || custo < 0 || taxaPct >= 100) return null;
+  const taxa = (taxaPct == null || isNaN(taxaPct)) ? 12.99 : taxaPct;
+  const margem = (margemPct == null || isNaN(margemPct)) ? 30 : margemPct;
+  const valorSugerido = custo * (1 + margem / 100) / (1 - taxa / 100);
+  const valorTaxa = valorSugerido * (taxa / 100);
+  const lucroLiquido = valorSugerido - custo - valorTaxa;
+  return {
+    valorSugerido: Math.round(valorSugerido * 100) / 100,
+    lucroLiquido: Math.round(lucroLiquido * 100) / 100,
+    valorTaxa: Math.round(valorTaxa * 100) / 100,
+  };
+}
+
+function atualizarPreviewSugestao() {
+  const custo = parseFloat(document.getElementById('produto-custo').value);
+  const taxa = parseFloat(document.getElementById('produto-taxa').value);
+  const margem = parseFloat(document.getElementById('produto-margem').value);
+  const el = document.getElementById('sugestao-preview');
+  const r = calcularSugestaoProduto(custo, taxa, margem);
+  if (r == null || isNaN(custo) || custo <= 0) {
+    el.textContent = 'Preencha o custo e a taxa para ver o valor sugerido de venda.';
+    return;
+  }
+  if (taxa >= 100) {
+    el.textContent = 'A taxa deve ser menor que 100%.';
+    return;
+  }
+  el.textContent = `Venda sugerida: ${formatarMoeda(r.valorSugerido)} → lucro líquido ${formatarMoeda(r.lucroLiquido)} (após taxa de ${formatarMoeda(r.valorTaxa)})`;
+}
+
+async function excluirProduto(id) {
+  if (!confirm('Excluir este produto? Essa ação não pode ser desfeita.')) return;
+  try {
+    await apiDelete('/produtos/' + id);
+    toast('Produto excluído.', 'ok');
+    loadProdutos();
+  } catch (err) {
+    toast(err.message || 'Erro ao excluir', 'erro');
+  }
+}
+
+document.getElementById('produto-custo').addEventListener('input', atualizarPreviewSugestao);
+document.getElementById('produto-taxa').addEventListener('input', atualizarPreviewSugestao);
+document.getElementById('produto-margem').addEventListener('input', atualizarPreviewSugestao);
+
 document.getElementById('form-produto').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = e.target;
+  const nome = form.nome.value.trim();
+  const custo = parseFloat(form.custo.value);
+  const taxaSugestao = parseFloat(form.taxa_sugestao.value);
+  const margemLucro = parseFloat(form.margem_lucro.value);
+  if (!nome) {
+    toast('Informe o nome do produto.', 'erro');
+    return;
+  }
+  if (isNaN(custo) || custo < 0) {
+    toast('Informe um custo válido (número ≥ 0).', 'erro');
+    return;
+  }
+  if (isNaN(taxaSugestao) || taxaSugestao < 0 || taxaSugestao >= 100) {
+    toast('Informe a taxa que você paga (entre 0 e 100%).', 'erro');
+    return;
+  }
   const body = {
-    nome: form.nome.value.trim(),
-    custo: parseFloat(form.custo.value),
+    nome,
+    custo,
+    taxa_sugestao: taxaSugestao,
+    margem_lucro: isNaN(margemLucro) || margemLucro < 0 ? 30 : margemLucro,
   };
-  if (form.valor_sugerido.value.trim()) body.valor_sugerido = parseFloat(form.valor_sugerido.value);
   try {
     await apiPost('/produtos', body);
     toast('Produto cadastrado!', 'ok');
     form.reset();
+    form.taxa_sugestao.value = '12.99';
+    form.margem_lucro.value = '30';
+    atualizarPreviewSugestao();
     loadProdutos();
   } catch (err) {
     toast(err.message || 'Erro ao cadastrar', 'erro');
@@ -163,10 +258,17 @@ async function loadVendas() {
 document.getElementById('form-venda').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = e.target;
-  const body = {
-    produto_id: parseInt(form.produto_id.value, 10),
-    valor_bruto: parseFloat(form.valor_bruto.value),
-  };
+  const produtoId = parseInt(form.produto_id.value, 10);
+  const valorBruto = parseFloat(form.valor_bruto.value);
+  if (!produtoId) {
+    toast('Selecione um produto.', 'erro');
+    return;
+  }
+  if (isNaN(valorBruto) || valorBruto < 0) {
+    toast('Informe o valor da venda (número ≥ 0).', 'erro');
+    return;
+  }
+  const body = { produto_id: produtoId, valor_bruto: valorBruto };
   try {
     const data = await apiPost('/vendas', body);
     const fb = document.getElementById('ultima-venda');
@@ -210,10 +312,20 @@ async function loadDespesas() {
 document.getElementById('form-despesa').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = e.target;
+  const nome = form.nome.value.trim();
+  const valor = parseFloat(form.valor.value);
+  if (!nome) {
+    toast('Informe o nome da despesa.', 'erro');
+    return;
+  }
+  if (isNaN(valor) || valor < 0) {
+    toast('Informe um valor válido (número ≥ 0).', 'erro');
+    return;
+  }
   const body = {
-    nome: form.nome.value.trim(),
+    nome,
     motivo: form.motivo.value.trim(),
-    valor: parseFloat(form.valor.value),
+    valor,
     data: form.data.value,
   };
   try {
@@ -244,14 +356,15 @@ async function loadMetas() {
       div.className = 'meta-item';
       const pct = prog ? prog.percentual : 0;
       const acima = pct >= 100;
+      const badge = prog ? (acima ? '<span class="meta-item__badge meta-item__badge--atingida">Atingida</span>' : '<span class="meta-item__badge meta-item__badge--andamento">Em andamento</span>') : '';
       div.innerHTML = `
-        <strong>${escapeHtml(m.descricao)}</strong> — ${formatarMoeda(m.valor_alvo)} (${m.periodo})
+        <strong>${escapeHtml(m.descricao)}</strong>${badge} — ${formatarMoeda(m.valor_alvo)} (${m.periodo})
         ${prog ? `
           <div class="meta-bar">
             <div class="meta-bar__fill ${acima ? '' : 'abaixo'}" style="width: ${Math.min(100, pct)}%"></div>
           </div>
           <small>${formatarMoeda(prog.valor_atual)} de ${formatarMoeda(prog.valor_alvo)} (${pct.toFixed(1)}%) · Falta ${formatarMoeda(prog.falta)}</small>
-        ` : ''}
+        ` : '<br><small>Nenhuma venda no período ainda.</small>'}
       `;
       fragment.appendChild(div);
     }
@@ -266,11 +379,17 @@ async function loadMetas() {
 document.getElementById('form-meta').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = e.target;
-  const body = {
-    descricao: form.descricao.value.trim(),
-    valor_alvo: parseFloat(form.valor_alvo.value),
-    periodo: form.periodo.value,
-  };
+  const descricao = form.descricao.value.trim();
+  const valorAlvo = parseFloat(form.valor_alvo.value);
+  if (!descricao) {
+    toast('Informe a descrição da meta.', 'erro');
+    return;
+  }
+  if (isNaN(valorAlvo) || valorAlvo < 0) {
+    toast('Informe o valor alvo (número ≥ 0).', 'erro');
+    return;
+  }
+  const body = { descricao, valor_alvo: valorAlvo, periodo: form.periodo.value };
   try {
     await apiPost('/metas', body);
     toast('Meta criada!', 'ok');
@@ -324,6 +443,31 @@ async function loadDashboard() {
     elTaxas.textContent = formatarMoeda(data.total_taxas);
     const periodos = { semanal: 'esta semana', mensal: 'este mês', anual: 'este ano', total: 'geral' };
     resumo.textContent = `Resumo ${periodos[periodo] || periodo}: lucro ${formatarMoeda(data.lucro_total)}, despesas ${formatarMoeda(data.total_despesas)}, taxas ${formatarMoeda(data.total_taxas)}.`;
+
+    // Meta do mês (primeira meta mensal)
+    const cardMeta = document.getElementById('card-meta-dashboard');
+    try {
+      const metas = await apiGet('/metas');
+      const metaMensal = metas.find(m => m.periodo === 'mensal');
+      if (metaMensal) {
+        const prog = await apiGet('/metas/' + metaMensal.id + '/progresso');
+        cardMeta.hidden = false;
+        document.getElementById('meta-dash-titulo').textContent = metaMensal.descricao + ' — ' + formatarMoeda(metaMensal.valor_alvo);
+        const bar = document.getElementById('meta-dash-bar');
+        const pct = Math.min(100, prog.percentual);
+        bar.style.width = pct + '%';
+        bar.className = 'meta-bar__fill meta-dash__fill' + (prog.percentual >= 100 ? '' : ' abaixo');
+        document.getElementById('meta-dash-texto').textContent =
+          prog.percentual >= 100
+            ? 'Meta atingida! ' + formatarMoeda(prog.valor_atual) + ' de ' + formatarMoeda(prog.valor_alvo)
+            : formatarMoeda(prog.valor_atual) + ' de ' + formatarMoeda(prog.valor_alvo) + ' (' + prog.percentual.toFixed(1) + '%). Falta ' + formatarMoeda(prog.falta);
+        cardMeta.classList.toggle('meta--atingida', prog.percentual >= 100);
+      } else {
+        cardMeta.hidden = true;
+      }
+    } catch (_) {
+      cardMeta.hidden = true;
+    }
 
     // Dados para gráficos: agrupar por data
     const vendasPorData = agruparPorData(vendas, 'created_at', 'valor_bruto');

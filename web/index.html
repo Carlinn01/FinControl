@@ -49,9 +49,12 @@
           <label>Nome</label>
           <input type="text" name="nome" required placeholder="Ex: Camiseta">
           <label>Custo (R$)</label>
-          <input type="number" name="custo" step="0.01" min="0" required placeholder="0,00">
-          <label>Valor sugerido (R$) <small>opcional</small></label>
-          <input type="number" name="valor_sugerido" step="0.01" min="0" placeholder="Deixe em branco para calcular">
+          <input type="number" name="custo" step="0.01" min="0" required placeholder="0,00" id="produto-custo">
+          <label>Taxa que vou pagar (%)</label>
+          <input type="number" name="taxa_sugestao" step="0.01" min="0" max="100" value="12.99" placeholder="Ex: 12,99" id="produto-taxa">
+          <label>Margem de lucro desejada (%) <small>sobre o custo</small></label>
+          <input type="number" name="margem_lucro" step="1" min="0" value="30" placeholder="30" id="produto-margem">
+          <p class="sugestao-preview" id="sugestao-preview">Preencha custo e taxa para ver o valor sugerido.</p>
           <button type="submit" class="btn">Cadastrar</button>
         </form>
       </div>
@@ -155,6 +158,14 @@
           <span class="card__label">Taxas</span>
           <span class="card__valor" id="dash-taxas">—</span>
         </div>
+      </div>
+      <div class="card card--meta-dash" id="card-meta-dashboard" hidden>
+        <h2>Meta do mês</h2>
+        <p class="meta-dash__titulo" id="meta-dash-titulo">—</p>
+        <div class="meta-bar">
+          <div class="meta-bar__fill meta-dash__fill" id="meta-dash-bar" style="width: 0%"></div>
+        </div>
+        <p class="meta-dash__texto" id="meta-dash-texto">—</p>
       </div>
       <div class="card">
         <h2>Resumo do período</h2>
