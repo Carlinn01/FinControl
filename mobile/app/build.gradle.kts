@@ -2,13 +2,20 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+// Evita JdkImageTransform/jlink que falha no Windows com AGP 8.x + compileSdk 34
+configurations.all {
+    resolutionStrategy {
+        force("androidx.activity:activity:1.7.2")
+        force("androidx.core:core-ktx:1.10.0")
+    }
+}
 android {
     namespace = "com.fincontrol.app"
-    compileSdk = 34
+    compileSdk = 33
     defaultConfig {
         applicationId = "com.fincontrol.app"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
     }
@@ -33,9 +40,10 @@ android {
     }
 }
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core-ktx:1.10.0")
+    implementation("androidx.activity:activity:1.7.2")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")

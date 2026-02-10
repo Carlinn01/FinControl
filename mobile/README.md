@@ -38,6 +38,25 @@ A URL base está em **`app/src/main/java/com/fincontrol/app/api/RetrofitClient.k
 - Tela de **metas** com barra de progresso.
 - Abas ou menu inferior para navegar entre Saldo, Vendas, Despesas, Dashboard.
 
+## Se der erro "JdkImageTransform" ou "jlink.exe"
+
+O projeto usa **compileSdk 33** (compatível com as dependências AndroidX atuais). Se ainda aparecer, faça o seguinte (sem precisar achar “Gradle JDK” no Android Studio):
+
+1. **Feche o Android Studio** por completo.
+2. **Apague a pasta de cache do Gradle** no seu usuário:
+   - Abra o **Explorador de Arquivos** e vá em:  
+     `C:\Users\Carlinn\.gradle\caches`
+   - **Apague a pasta** `transforms-3` (ou, se preferir, apague toda a pasta `caches`).
+3. **Abra de novo o projeto** no Android Studio (a pasta `mobile`).
+4. Clique em **Sync Now** (ou no elefante com seta azul na barra de ferramentas).
+5. Depois, **gerar o app de novo** com uma destas opções (o nome pode mudar conforme a versão do Android Studio):
+   - **Build → Rebuild Project**  
+   - ou **Build → Make Project** (Ctrl+F9)  
+   - ou **Build → Build Bundle(s) / APK(s) → Build APK(s)**  
+   - ou só clicar no **Run** (▶) para compilar e rodar.
+
+Isso força o Gradle a refazer os arquivos que estavam com erro. Se o erro continuar, avise e procuramos outra solução.
+
 ## Estrutura do projeto
 
 ```

@@ -1,0 +1,34 @@
+R_DEF: Internal format may change without notice
+local
+color alerta
+color azul
+color azul_claro
+color branco
+color cinza_escuro
+color cinza_medio
+color despesa
+color lucro
+color preto
+drawable ic_launcher_foreground
+id btnDefinirSaldo
+id swipeRefresh
+id toolbar
+id tvDespesas
+id tvLucro
+id tvSaldo
+id tvVendas
+layout activity_main
+string app_name
+string atualizar
+string dashboard
+string definir_saldo_inicial
+string despesas
+string erro_carregar
+string lucro
+string saldo
+string saldo_atual
+string taxas
+string total_despesas
+string ultimas_vendas
+string vendas
+style Theme.FinControl
