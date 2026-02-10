@@ -1,5 +1,6 @@
 package com.fincontrol.app
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -28,6 +29,11 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDefinirSaldo)
             .setOnClickListener { mostrarDialogoSaldoInicial() }
+
+        findViewById<com.google.android.material.button.MaterialButton>(R.id.btnIrRegistrarVenda)
+            .setOnClickListener {
+                startActivity(Intent(this, RegistrarVendaActivity::class.java))
+            }
 
         carregarDados(null)
     }
