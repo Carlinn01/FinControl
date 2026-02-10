@@ -10,7 +10,7 @@ object RetrofitClient {
 
     // No emulador Android: 10.0.2.2 é o localhost do PC
     // No dispositivo físico: use o IP da sua máquina na rede (ex: 192.168.1.100)
-    private const val BASE_URL = "http://10.0.2.2:3000/api/"
+    private const val BASE_URL = "http://192.168.3.111:3000/api/"
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

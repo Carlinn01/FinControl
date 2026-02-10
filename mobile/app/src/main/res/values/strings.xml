@@ -13,4 +13,22 @@
     <string name="taxas">Taxas</string>
     <string name="atualizar">Atualizar</string>
     <string name="erro_carregar">Erro ao carregar. Verifique a API.</string>
+    <string name="registrar_venda">Registrar venda</string>
+    <string name="cadastrar_despesa">Cadastrar despesa</string>
+    <string name="criar_meta">Criar meta</string>
+    <string name="produto_id">ID do produto</string>
+    <string name="valor_venda">Valor da venda</string>
+    <string name="taxa_percentual">Taxa percentual (opcional)</string>
+    <string name="nome_despesa">Nome da despesa</string>
+    <string name="motivo_despesa">Motivo (opcional)</string>
+    <string name="valor_despesa">Valor da despesa</string>
+    <string name="data_despesa">Data (YYYY-MM-DD, opcional)</string>
+    <string name="descricao_meta">Descrição da meta</string>
+    <string name="valor_alvo_meta">Valor alvo</string>
+    <string name="periodo_meta">Período</string>
+    <string name="mensal">Mensal</string>
+    <string name="anual">Anual</string>
+    <string name="sucesso_venda">Venda registrada!</string>
+    <string name="sucesso_despesa">Despesa cadastrada!</string>
+    <string name="sucesso_meta">Meta criada!</string>
 </resources>
